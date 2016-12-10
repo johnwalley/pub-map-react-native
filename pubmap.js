@@ -361,3 +361,55 @@ export function drawLine(data, xScale, yScale, lineWidth) {
 
   return path;
 }
+
+export function textPos(data, lineWidth) {
+    var pos;
+    var textAnchor;
+    var offset = lineWidth * 1.8;
+
+    var numLines = data.label.split(/\n/).length;
+
+    var sqrt2 = Math.sqrt(2);
+
+    switch (data.labelPos.toLowerCase()) {
+      case "n":
+        pos = [0, lineWidth*(numLines - 1) + offset];
+        textAnchor = "middle";
+        break;
+      case "ne":
+        pos = [offset / sqrt2, (lineWidth*(numLines - 1) + offset) / sqrt2];
+        textAnchor = "start";
+        break;
+      case "e":
+        pos = [offset, 0];
+        textAnchor = "start";
+        break;
+      case "se":
+        pos = [offset / sqrt2, -offset / sqrt2];
+        textAnchor = "start";
+        break;
+      case "s":
+        pos = [0, -1.2*offset];
+        textAnchor = "middle";
+        break;
+      case "sw":
+        pos = [-offset/sqrt2, -1.4*offset/sqrt2];
+        textAnchor = "end";
+        break;
+      case "w":
+        pos = [-offset, 0];
+        textAnchor = "end";
+        break;
+      case "nw":
+        pos = [-(lineWidth*(numLines - 1) + offset)/sqrt2, (lineWidth*(numLines - 1) + offset)/sqrt2];
+        textAnchor = "end";
+        break;
+      default:
+        break;
+    }
+
+    return {
+      "pos": pos,
+      "textAnchor": textAnchor
+    }
+  }
