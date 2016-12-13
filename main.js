@@ -8,33 +8,12 @@ import React, { Component } from 'react';
 import {
   Animated,
   AppRegistry,
+  Image,
   PanResponder,
   ScrollView,
   StyleSheet,
   View
 } from 'react-native';
-import Svg, {
-  Circle,
-  Ellipse,
-  G,
-  LinearGradient,
-  RadialGradient,
-  Line,
-  Path,
-  Polygon,
-  Polyline,
-  Rect,
-  Symbol,
-  Text,
-  Use,
-  Defs,
-  Stop
-} from 'react-native-svg';
-import * as d3 from 'd3';
-
-import { mangleData, drawLine, textPos } from './pubmap';
-
-var pubs = require('./pubs.json');
 
 export default class PubMap extends Component {
   constructor() {
@@ -46,8 +25,9 @@ export default class PubMap extends Component {
     };
 
     this.state = {
-      zoom: 2,
+      zoom: 8,
       minZoom: 1,
+      maxZoom: 8,
       layoutKnown: false,
       isZooming: false,
       isMoving: false,
@@ -61,13 +41,11 @@ export default class PubMap extends Component {
       initialTopWithoutZoom: 0,
       initialLeftWithoutZoom: 0,
       initialZoom: 1,
-      top: 0,
-      left: 0,
+      top: -300,
+      left: -800,
       width: 375,
       height: 375
     }
-
-    this.G = G;
   }
 
   componentWillMount = () => {
@@ -159,149 +137,17 @@ export default class PubMap extends Component {
   }
 
   render() {
-    var zoomScale = 1;
-    var width = zoomScale * 375;
-    var height = zoomScale * 250;
-
-    var data = mangleData(pubs);
-
-    var xScale = d3.scaleLinear()
-      .domain([-40, 100])
-      .range([0, width]);
-
-    var yScale = d3.scaleLinear()
-      .domain([-46, 46])
-      .range([height, 0]);
-
-    var lineWidthMultiplier = 1.2;
-    var lineWidth = lineWidthMultiplier * (xScale(1) - xScale(0));
-
-    var markerFunction = d3.arc()
-      .innerRadius(0)
-      .outerRadius(lineWidth)
-      .startAngle(0)
-      .endAngle(2 * Math.PI);
-
-    var lineFunction = d3.line()
-      .x(function (d) { return xScale(d[0]); })
-      .y(function (d) { return yScale(d[1]); });
-
-    var stationFunction = function (d) {
-      var dir;
-
-      var sqrt2 = Math.sqrt(2);
-
-      switch (d.labelPos.toLowerCase()) {
-        case "n":
-          dir = [0, 1];
-          break;
-        case "ne":
-          dir = [1 / sqrt2, 1 / sqrt2];
-          break;
-        case "e":
-          dir = [1, 0];
-          break;
-        case "se":
-          dir = [1 / sqrt2, -1 / sqrt2];
-          break;
-        case "s":
-          dir = [0, -1];
-          break;
-        case "sw":
-          dir = [-1 / sqrt2, -1 / sqrt2];
-          break;
-        case "w":
-          dir = [-1, 0];
-          break;
-        case "nw":
-          dir = [-1 / sqrt2, 1 / sqrt2];
-          break;
-        default:
-          break;
-      }
-
-      return lineFunction([[d.x + (d.shiftX * lineWidthMultiplier) + lineWidthMultiplier / 2.05 * dir[0], d.y + (d.shiftY * lineWidthMultiplier) + lineWidthMultiplier / 2.05 * dir[1]], [d.x + (d.shiftX * lineWidthMultiplier) + lineWidthMultiplier * dir[0], d.y + (d.shiftY * lineWidthMultiplier) + lineWidthMultiplier * dir[1]]]);
-    }
-
-    var river = data.river;
-    var lines = data.lines.lines;
-    var interchanges = data.stations.interchanges();
-    var stations = data.stations.normalStations();
-    var labels = data.stations.toArray();
-
-    var riverElement = (
-      <Path x={this.state.left} y={this.state.top} scale={this.state.zoom} d={drawLine(data.river, xScale, yScale, lineWidth)} strokeWidth={lineWidth * 2} fill="none" stroke="#C4E8F8" ></Path>
-    );
-
-    var lineElements = lines.map((l, index) => {
-      return (
-        <Path x={this.state.left} y={this.state.top} scale={this.state.zoom} d={drawLine(l, xScale, yScale, lineWidth)} strokeWidth={lineWidth / 2} fill="none" stroke={l.color} strokeWidth="4" key={index}></Path>
-      );
-    });
-
-    var interchangeElements = interchanges.map((i, index) => {
-      return (
-        <G
-          x={this.state.left}
-          y={this.state.top}
-          scale={this.state.zoom}
-          key={index}
-          >
-          <Path
-            d={markerFunction(i)}
-            x={xScale(i.x + i.marker[0].shiftX * lineWidthMultiplier)}
-            y={yScale(i.y + i.marker[0].shiftY * lineWidthMultiplier)}
-            strokeWidth={lineWidth / 2}
-            fill="#FFF"
-            stroke="#000"
-            onPress={() => alert('Interchange' + index)}
-            key={index}
-            >
-          </Path>
-        </G>
-      );
-    });
-
-    var stationElements = stations.map((s, index) => {
-      return (
-        <Path x={this.state.left} y={this.state.top} scale={this.state.zoom} d={stationFunction(s)} strokeWidth={lineWidth / 2} fill="none" stroke={s.color} onPress={() => alert('Station' + index)} key={index}></Path>
-      );
-    });
-
-    var labelElements = labels.map((l, index) => {
-      return (
-        <G
-          x={this.state.left}
-          y={this.state.top}
-          scale={this.state.zoom}
-          key={index}
-          >
-          <Text
-            x={xScale(l.x + l.labelShiftX) + textPos(l, lineWidth).pos[0]}
-            y={yScale(l.y + l.labelShiftY + 1) - textPos(l, lineWidth).pos[1]}
-            textAnchor={textPos(l).textAnchor}
-            fontSize="3.5"
-            onPress={() => alert(l.label)}
-            key={index}
-            >
-            {l.label}
-          </Text>
-        </G>
-      );
-    });
-    // x={this.state.left} y={this.state.top} scale={this.state.zoom}
     return (
-      <View {...this._panResponder.panHandlers}>
-        <Svg
-          width={375} //"375"
-          height={667} //"667"
-          >
-          {riverElement}
-          {lineElements}
-          {interchangeElements}
-          {stationElements}
-          {labelElements}
-        </Svg>
+      <View {...this._panResponder.panHandlers} style={styles.container}>
+        <Image
+          style={{
+            marginLeft: this.state.left,
+            marginTop: this.state.top,
+            width: 300 * this.state.zoom,
+            height: 200 * this.state.zoom
+          }}
+          source={require('./test.png')}
+          />
       </View>
     );
   }
@@ -310,25 +156,13 @@ export default class PubMap extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
     backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
 });
 
 AppRegistry.registerComponent('PubMap', () => PubMap);
-
-
 
 function calcDistance(x1, y1, x2, y2) {
   let dx = Math.abs(x1 - x2)
