@@ -87,13 +87,21 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "com.pubmap"
+        applicationId "com.walley.pubmap"
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
+        }
+    }
+    signingConfigs {
+        release {
+            storeFile file(TONYFACTS_RELEASE_STORE_FILE)
+            storePassword TONYFACTS_RELEASE_STORE_PASSWORD
+            keyAlias TONYFACTS_RELEASE_KEY_ALIAS
+            keyPassword TONYFACTS_RELEASE_KEY_PASSWORD
         }
     }
     splits {
@@ -107,6 +115,7 @@ android {
     buildTypes {
         release {
             minifyEnabled enableProguardInReleaseBuilds
+           signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }

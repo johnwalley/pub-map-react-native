@@ -146,7 +146,7 @@ export default class PubMap extends Component {
             width: 300 * this.state.zoom,
             height: 200 * this.state.zoom
           }}
-          source={require('./test.png')}
+          source={require('./map.png')}
           />
       </View>
     );

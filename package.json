@@ -1,5 +1,5 @@
 {
-  "name": "PubMap",
+  "name": "pubmap",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -7,11 +7,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "d3": "^4.3.0",
-    "d3-tube-map": "0.0.6",
     "react": "^15.4.0",
-    "react-native": "0.39.1",
-    "react-native-svg": "^4.3.2"
+    "react-native": "0.39.1"
   },
   "jest": {
     "preset": "jest-react-native"
